@@ -1,0 +1,48 @@
+# Core
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-dotenv==1.0.1
+pydantic==2.7.1
+httpx==0.27.0
+
+# LangGraph agents
+langgraph==0.1.1
+langchain==0.2.1
+langchain-community==0.2.1
+
+# RAG — GPU accelerated on RTX 4050
+# NOTE: Install PyTorch separately with CUDA support:
+# pip install torch --index-url https://download.pytorch.org/whl/cu121
+sentence-transformers==3.0.0
+rank-bm25==0.2.2
+
+# PDF processing
+PyMuPDF==1.24.3
+pdfplumber==0.11.0
+pytesseract==0.3.13
+Pillow==10.3.0
+
+# Database + pgvector
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.30
+pgvector==0.3.2
+redis==5.0.4
+alembic==1.13.1
+
+# Auth
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Storage + Email
+boto3==1.34.0
+resend==0.7.2
+
+# Observability
+arize-phoenix==3.20.0
+prometheus-client==0.20.0
+
+# Testing
+pytest==8.2.0
+pytest-asyncio==0.23.6
+black==24.4.2
+ruff==0.4.4

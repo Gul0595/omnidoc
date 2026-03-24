@@ -1,0 +1,86 @@
+{
+  "timestamp": "2026-03-24 21:13:36",
+  "ragas_scores": {},
+  "chunk_stats": {
+    "error": "relation \"document_chunks\" does not exist\nLINE 1: SELECT COUNT(*) as total FROM document_chunks;\n                                      ^\n"
+  },
+  "per_question": [
+    {
+      "question": "What are the main features of the OmniDoc system?",
+      "answer": "Based on the documents: OmniDoc is a multi-sector document intelligence system. Regarding 'What are the main features of the OmniDoc system?': The system uses hybrid retrieval combining dense vector search with sparse BM25, followed by GPU reranking for accurate results.",
+      "contexts": [
+        "OmniDoc implements a multi-LLM fallback chain: Ollama -> Groq -> Gemini -> Cloudflare -> HuggingFace.",
+        "The system uses pgvector for storing document embeddings with hybrid retrieval combining dense and sparse search.",
+        "Six sector configurations are supported: Agriculture, Healthcare, Legal, Finance, Education, and IT.",
+        "RBAC roles include viewer (read-only), editor (upload and query), and admin (full management).",
+        "Scanned PDFs are handled using pytesseract OCR with auto-detection."
+      ],
+      "ground_truth": "OmniDoc provides multi-sector document intelligence with RAG-based querying, RBAC team management, OCR for scanned PDFs, and a multi-LLM fallback chain.",
+      "manual_metrics": {
+        "word_overlap_score": 0.389,
+        "num_contexts_retrieved": 5,
+        "avg_context_length": 95.0,
+        "answer_word_count": 40,
+        "grounded": true
+      }
+    },
+    {
+      "question": "How does the multi-LLM fallback chain work?",
+      "answer": "Based on the documents: OmniDoc is a multi-sector document intelligence system. Regarding 'How does the multi-LLM fallback chain work?': The system uses hybrid retrieval combining dense vector search with sparse BM25, followed by GPU reranking for accurate results.",
+      "contexts": [
+        "OmniDoc implements a multi-LLM fallback chain: Ollama -> Groq -> Gemini -> Cloudflare -> HuggingFace.",
+        "The system uses pgvector for storing document embeddings with hybrid retrieval combining dense and sparse search.",
+        "Six sector configurations are supported: Agriculture, Healthcare, Legal, Finance, Education, and IT.",
+        "RBAC roles include viewer (read-only), editor (upload and query), and admin (full management).",
+        "Scanned PDFs are handled using pytesseract OCR with auto-detection."
+      ],
+      "ground_truth": "The system tries Ollama first, then falls back to Groq, Gemini, Cloudflare Workers AI, and finally HuggingFace if previous providers fail.",
+      "manual_metrics": {
+        "word_overlap_score": 0.417,
+        "num_contexts_retrieved": 5,
+        "avg_context_length": 95.0,
+        "answer_word_count": 38,
+        "grounded": true
+      }
+    },
+    {
+      "question": "What sectors does OmniDoc support?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "OmniDoc supports 6 sectors: Agriculture, Healthcare, Legal, Finance, Education, and IT.",
+      "manual_metrics": {
+        "word_overlap_score": 0.0,
+        "num_contexts_retrieved": 0,
+        "avg_context_length": 0.0,
+        "answer_word_count": 0,
+        "grounded": false
+      }
+    },
+    {
+      "question": "What user roles are available in OmniDoc?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "OmniDoc supports three roles: viewer (read-only), editor (can upload and query), and admin (full workspace management).",
+      "manual_metrics": {
+        "word_overlap_score": 0.0,
+        "num_contexts_retrieved": 0,
+        "avg_context_length": 0.0,
+        "answer_word_count": 0,
+        "grounded": false
+      }
+    },
+    {
+      "question": "How are scanned PDFs handled?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "Scanned PDFs are processed using pytesseract OCR which auto-detects whether a PDF needs OCR and extracts text accordingly.",
+      "manual_metrics": {
+        "word_overlap_score": 0.0,
+        "num_contexts_retrieved": 0,
+        "avg_context_length": 0.0,
+        "answer_word_count": 0,
+        "grounded": false
+      }
+    }
+  ]
+}

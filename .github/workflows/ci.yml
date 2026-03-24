@@ -1,0 +1,104 @@
+name: CI/CD — OmniDoc
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # ── Backend tests ──────────────────────────────────────────────────────────
+  test-backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER:     testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB:       testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports: ["5432:5432"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11", cache: pip }
+      - run: pip install -r backend/requirements.txt
+      - name: Run tests
+        env:
+          DATABASE_URL:  postgresql://testuser:testpass@localhost:5432/testdb
+          SECRET_KEY:    test-secret-key-minimum-32-characters!
+          GROQ_API_KEY:  dummy-key-for-ci
+        working-directory: backend
+        run: pytest tests/ -v --tb=short
+      - name: Lint
+        working-directory: backend
+        run: |
+          pip install black ruff
+          black --check .
+          ruff check .
+
+  # ── Frontend build ─────────────────────────────────────────────────────────
+  test-frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20", cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - run: npm ci
+      - run: npm run build
+        env: { NEXT_PUBLIC_API_URL: "http://localhost:8000" }
+
+  # ── Deploy (runs only on push to main) ────────────────────────────────────
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── CREDENTIAL REQUIRED ────────────────────────────────────────────────
+      # Add these secrets in GitHub → Settings → Secrets → Actions:
+      #
+      # RENDER_API_KEY            — Render dashboard → Account → API Keys
+      # RENDER_BACKEND_SERVICE_ID — Render service URL, e.g. srv-xxxx
+      # VERCEL_TOKEN              — Vercel dashboard → Settings → Tokens
+      # VERCEL_ORG_ID             — Vercel dashboard → Settings → General
+      # VERCEL_PROJECT_ID         — Vercel project → Settings → General
+      # PROD_API_URL              — your Render backend URL
+      # ──────────────────────────────────────────────────────────────────────
+
+      - name: Deploy backend to Render
+        env:
+          RENDER_API_KEY:  ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE:  ${{ secrets.RENDER_BACKEND_SERVICE_ID }}
+        run: |
+          curl -s -X POST \
+            "https://api.render.com/v1/services/${RENDER_SERVICE}/deploys" \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache":false}'
+          echo "Backend deploy triggered on Render"
+
+      - name: Deploy frontend to Vercel
+        working-directory: frontend
+        env:
+          VERCEL_TOKEN:      ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID:     ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npm i -g vercel
+          vercel --prod --token $VERCEL_TOKEN \
+            --env NEXT_PUBLIC_API_URL=${{ secrets.PROD_API_URL }}
+          echo "Frontend deployed to Vercel"

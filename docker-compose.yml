@@ -1,0 +1,77 @@
+version: "3.9"
+
+# Infrastructure services only.
+# Backend + Frontend run natively so they can access the GPU (RTX 4050).
+
+services:
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: omnidoc_postgres
+    environment:
+      POSTGRES_USER:     omniuser
+      POSTGRES_PASSWORD: omnipass    # Change this for production
+      POSTGRES_DB:       omnidoc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/scripts/init_pgvector.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U omniuser -d omnidoc"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: omnidoc_redis
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server --save 60 1 --loglevel warning
+      --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    container_name: omnidoc_phoenix
+    ports:
+      - "6006:6006"
+      - "4317:4317"
+    volumes:
+      - phoenix_data:/root/.phoenix
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: omnidoc_prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./backend/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: omnidoc_grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./backend/monitoring/grafana/provisioning:/etc/grafana/provisioning
+
+volumes:
+  postgres_data:
+  redis_data:
+  phoenix_data:
+  prometheus_data:
+  grafana_data:
