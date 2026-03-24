@@ -32,7 +32,6 @@ boto3==1.34.0
 resend==0.7.2
 
 # Observability
-arize-phoenix==3.20.0
 prometheus-client==0.20.0
 
 # Testing
