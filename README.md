@@ -292,10 +292,4 @@ pytest tests/ -v
 | CI/CD | GitHub Actions | Auto-deploy on push |
 | Deployment | Render + Vercel | Free tier, production-ready |
 
-**Total monthly cost at portfolio scale: $0**
-
 ---
-
-## License
-
-MIT
